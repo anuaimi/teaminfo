@@ -3,7 +3,9 @@
 # github.rb 
 
 require 'octokit'
-require 'activesupport'
+require 'active_support/core_ext'
+
+DEBUG = false
 
 puts "username:"
 STDOUT.flush
@@ -35,37 +37,64 @@ if organizations.count > 0
 	company = organizations[0]
 
 	members = client.org_members(company.login )
-	print "SurfEasy members include: "
-	members.each { |member|
-		print " #{member.login}"
-	}
-	print "\n"
-	STDOUT.flush
+	if DEBUG
+		print "SurfEasy members include: "
+		members.each { |member|
+			print " #{member.login}"
+		}
+		print "\n"
+		STDOUT.flush
+	end
 
 	# repos - both public & private
 	repos = client.organization_repositories( company.login, :type => 'all')
-	print "SurfEasy repos include: "
-	repos.each { |repo|
-		print " #{repo.name}"
-	}
-	print "\n"
-	STDOUT.flush
+	if DEBUG
+		print "SurfEasy repos include: "
+		repos.each { |repo|
+			print " #{repo.name}"
+		}
+		print "\n"
+		STDOUT.flush
+	end
+
 
 	# activity for the last week
-	interval = 7.days
+	last_week = 7.days.ago
 	today = Time.now
 
 		# pre team member
 	#events - type = push
+	members.each { |member|
+
+#TODO - will get the 1st 30 events, use option 'page' to get next set if required
+		events = client.organization_events( company.login)
+#		events = client.user_events( member.login)
+
+		# this will print the most recent 30 events for the team
+
+# TODO
+#  have one various that prints last 24 hours of events
+#  have another that does it just for a developer
+
+		if (events.count > 0)
+			puts "#{company.login} team worked on:"
+			events.each { |event|
+				event_date = Time.parse( event.created_at)
+				# if in last 7 days, 
+				if (event_date > last_week) 
+					if (event.type == "PushEvent")
+						puts "  #{event.actor.login} pushed to #{event.repo.name} on #{event.created_at}" 
+					else 
+						puts " #{event.actor.login} - #{event.type}  #{event.keys}"
+					end
+				end
+			}
+		end
+
+	}
 		# commits for last week
 end
 
 exit
 
-
-repos.each { |repo|
-	p repo.name
-}
-
-# user = Octokit.user "athirn"
 
