@@ -1,8 +1,9 @@
 #!/usr/bin/ruby
 
-# start.rb 
+# github.rb 
 
 require 'octokit'
+require 'activesupport'
 
 puts "username:"
 STDOUT.flush
@@ -41,12 +42,21 @@ if organizations.count > 0
 	print "\n"
 	STDOUT.flush
 
-
-	# repos
-	repos = Octokit.organization_repositories( company.login)
+	# repos - both public & private
+	repos = client.organization_repositories( company.login, :type => 'all')
+	print "SurfEasy repos include: "
+	repos.each { |repo|
+		print " #{repo.name}"
+	}
+	print "\n"
+	STDOUT.flush
 
 	# activity for the last week
+	interval = 7.days
+	today = Time.now
+
 		# pre team member
+	#events - type = push
 		# commits for last week
 end
 
