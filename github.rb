@@ -3,7 +3,6 @@
 # github.rb 
 
 require 'octokit'
-require 'active_support/core_ext'
 
 DEBUG = false
 
